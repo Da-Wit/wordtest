@@ -108,6 +108,10 @@ function App() {
     render({ subjectParam: SCON });
   };
 
+  const title =
+    Math.random() < 0.5
+      ? "스콘은 스마트문화앱콘텐츠 제작의 약자이다."
+      : "전상은 일주일에 5시간이 들었다.";
   if (started === false) {
     return (
       <div className="App">
