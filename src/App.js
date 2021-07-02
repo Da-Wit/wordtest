@@ -116,9 +116,7 @@ function App() {
     return (
       <div className="App">
         <header>
-          <h2 className="question">
-            스콘은 스마트문화앱콘텐츠 제작의 약자이다.
-          </h2>
+          <h2 className="question">{title}</h2>
         </header>
 
         <div>
