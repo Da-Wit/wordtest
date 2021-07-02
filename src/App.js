@@ -123,7 +123,7 @@ function App() {
 
         <div>
           <button onClick={onJeonsangClick} className="start-button">
-            전상(작업중)
+            전상
           </button>
         </div>
         <div>
