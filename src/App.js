@@ -1,11 +1,19 @@
 import { useState } from "react";
 import "./App.css";
 import Selections from "./selections";
-import { DESCRIPTIONS, ANSWERS } from "./data.js";
+import { ANSWERS, QUESTIONS } from "./data.js";
 
-const NUMBER_OF_SELECTIONS = 5;
+let LENGTH_OF_QUESTIONS;
+const RIGHT_ANSWER_INDEX = 0;
+const SCON = "SCON";
+const JEONSANG = "JEONSANG";
+
 function App() {
-  const getArrayHavingLength = (length) => {
+  const [count, setCount] = useState(0);
+  const [answerCount, setAnswerCount] = useState(0);
+  const [started, setStarted] = useState(false);
+  const [subject, setSubject] = useState(SCON);
+  const getArray = ({ length }) => {
     const array = [];
     for (let i = 0; i < length; i++) {
       array[i] = 0;
@@ -13,58 +21,64 @@ function App() {
     return array;
   };
 
-  const initDescription = "To start, click the Start Button.";
-  const initSelections = () =>
-    getArrayHavingLength(NUMBER_OF_SELECTIONS).map(() => ({
-      text: "Hello",
-      index: 0,
-    }));
-  const [count, setCount] = useState(0);
-  const [answerCount, setAnswerCount] = useState(0);
-  const [selections, setSelections] = useState(initSelections);
-  const [indexOfCorrectAnswer, setIndexOfCorrectAnswer] = useState(null);
-  const [description, setDescription] = useState(initDescription);
-  const [started, setStarted] = useState(false);
+  // const initQuestion = "To start, click the Start Button.";
+  // const initAnswers = () =>
+  //   getArray({length: NUMBER_OF_SELECTIONS}).map(() => ({
+  //     text: "Hello DK",
+  //     is
+  //   }));
 
-  const getSelections = () => {
-    let newSelections = getArrayHavingLength(NUMBER_OF_SELECTIONS).map(() => ({
-      text: "",
-      index: -1,
-    }));
+  const getQuestionIndex = () =>
+    Math.floor(Math.random() * LENGTH_OF_QUESTIONS);
 
+  const shakeAnswers = (answers) => {
+    const { length } = answers;
+    const shakedAnswers = getArray({ length });
     let index = 0;
-    while (index !== 5) {
-      const randomIndex = Math.floor(Math.random() * ANSWERS.length);
-      const newSelection = { text: ANSWERS[randomIndex], index: randomIndex };
 
-      if (
-        newSelections.filter((s) => s.index === newSelection.index).length === 0
-      ) {
-        newSelections[index] = newSelection;
+    while (index !== 5) {
+      const randomIndex = Math.floor(Math.random() * length);
+      // 0 is initialValue of getArray function
+      if (shakedAnswers[randomIndex] === 0) {
+        shakedAnswers[randomIndex] = answers[index];
         index++;
       }
     }
-    return newSelections;
+
+    return shakedAnswers;
   };
 
-  const getIndexOfCorrectAnswer = () =>
-    Math.floor(Math.random() * NUMBER_OF_SELECTIONS);
-
-  const getDescription = (selections, indexOfCorrectAnswer) => {
-    const correctAnswer = selections[indexOfCorrectAnswer];
-    const indexOfCorrectAnswerInData = ANSWERS.findIndex(
-      (answer) => correctAnswer.text === answer
-    );
-
-    return DESCRIPTIONS[indexOfCorrectAnswerInData];
+  const getAnswers = (
+    { answerIndex, subjectParam } = { answerIndex: 0, subjectParam: null }
+  ) => {
+    const sbj = subjectParam || subject;
+    console.log({ sbj, subject, subjectParam });
+    const rawAnswers = ANSWERS[sbj][answerIndex];
+    let answers = [];
+    const rightAnswer = { text: rawAnswers[RIGHT_ANSWER_INDEX], isRight: true };
+    let wrongAnswer = rawAnswers.slice();
+    wrongAnswer.splice(RIGHT_ANSWER_INDEX, 1);
+    wrongAnswer = wrongAnswer.map((answer) => ({
+      text: answer,
+      isRight: false,
+    }));
+    answers.push(rightAnswer);
+    wrongAnswer.forEach((a) => answers.push(a));
+    answers = shakeAnswers(answers);
+    return answers;
   };
 
-  const render = () => {
-    const nextSelections = getSelections();
-    const nextIndexOfCorrectAnswer = getIndexOfCorrectAnswer();
-    setSelections(nextSelections);
-    setIndexOfCorrectAnswer(nextIndexOfCorrectAnswer);
-    setDescription(getDescription(nextSelections, nextIndexOfCorrectAnswer));
+  const [questionIndex, setQuestionIndex] = useState(0);
+  const [answers, setAnswers] = useState(getAnswers);
+
+  const render = ({ subjectParam }) => {
+    const nextQuestionIndex = getQuestionIndex();
+    const nextAnswers = getAnswers({
+      answerIndex: nextQuestionIndex,
+      subjectParam,
+    });
+    setQuestionIndex(nextQuestionIndex);
+    setAnswers(nextAnswers);
   };
 
   const next = (isCorrectAnswer) => {
@@ -77,31 +91,59 @@ function App() {
     }
 
     setCount(count + 1);
-    render();
+    render({ subjectParam: subject });
   };
 
-  const onStartButtonClick = ({ target }) => {
-    target.parentNode.removeChild(target);
-    render();
+  const onJeonsangClick = () => {
     setStarted(true);
+    setSubject(JEONSANG);
+    LENGTH_OF_QUESTIONS = QUESTIONS.JEONSANG.length;
+    render({ subjectParam: JEONSANG });
   };
 
+  const onSconClick = () => {
+    setStarted(true);
+    setSubject(SCON);
+    LENGTH_OF_QUESTIONS = QUESTIONS.SCON.length;
+    render({ subjectParam: SCON });
+  };
+
+  if (started === false) {
+    return (
+      <div className="App">
+        <header>
+          <h2 className="question">
+            스콘은 스마트문화앱콘텐츠 제작의 약자이다.
+          </h2>
+        </header>
+
+        <div>
+          <button onClick={onJeonsangClick} className="start-button">
+            전상(작업중)
+          </button>
+        </div>
+        <div>
+          <button onClick={onSconClick} className="start-button">
+            스콘
+          </button>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="App">
       <header>
         <p>
-          Count : {count}, Correct Answer Count : {answerCount}
+          {answerCount} / {count}
         </p>
       </header>
-      <h2>{description}</h2>
+      <h2 className="question">{QUESTIONS[subject][questionIndex]}</h2>
       <Selections
-        selections={selections}
-        indexOfAnswer={indexOfCorrectAnswer}
+        answers={answers}
+        // selections={selections}
+        // indexOfAnswer={indexOfCorrectAnswer}
         next={next}
       />
-      <div>
-        <button onClick={onStartButtonClick}>Start</button>
-      </div>
     </div>
   );
 }

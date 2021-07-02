@@ -1,16 +1,5 @@
-const Selections = ({ selections, indexOfAnswer, next }) => {
-  const getSelectionIndex = ({ parentNode, textContent }) =>
-    Array.from(parentNode.children)
-      .filter((node) => {
-        return node.tagName === "BUTTON";
-      })
-      .findIndex((selection) => selection.textContent === textContent);
-
-  const onSelectionClick = ({ target }) => {
-    let isCorrectAnswer = getSelectionIndex(target) === indexOfAnswer;
-    next(isCorrectAnswer);
-  };
-
+// const Selections = ({ selections, indexOfAnswer, next }) => {
+const Selections = ({ answers, next }) => {
   const containerStyle = {
     width: "400px",
     margin: "0 auto",
@@ -24,11 +13,13 @@ const Selections = ({ selections, indexOfAnswer, next }) => {
 
   return (
     <div style={containerStyle}>
-      {selections.map(({ text }, index) => (
-        <button onClick={onSelectionClick} style={btnStyle} key={index}>
-          {text}
-        </button>
-      ))}
+      {answers.map(({ text, isRight }, index) => {
+        return (
+          <button onClick={() => next(isRight)} style={btnStyle} key={index}>
+            {text}
+          </button>
+        );
+      })}
     </div>
   );
 };

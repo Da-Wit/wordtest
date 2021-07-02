@@ -1,3 +1,40 @@
 .App {
   text-align: center;
 }
+
+.App button {
+  background: rgb(165, 165, 165);
+  color: black;
+  border: 3px solid rgb(235, 235, 235);
+  border-radius: 10px;
+  padding: 10px;
+  transition: 0.4s all ease;
+}
+
+.App .start-button {
+  background: rgb(165, 113, 45);
+  color: black;
+  border: 3px solid rgb(221, 156, 71);
+  margin-top: 30px;
+}
+
+.App button:hover {
+  background: black;
+  border: 3px solid rgb(165, 165, 165);
+  color: rgb(235, 235, 235);
+}
+
+.App .start-button:hover {
+  background: rgb(88, 54, 9);
+  color: rgb(221, 156, 71);
+  border: 3px solid rgb(165, 113, 45);
+}
+
+.question {
+  width: 75vw;
+  /* background: red; */
+  margin: 0 auto;
+  /* overflow: scroll; */
+  /* margin-left: 20vw;
+  margin-right: 20vw; */
+}
